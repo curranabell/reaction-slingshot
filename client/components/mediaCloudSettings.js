@@ -1,8 +1,33 @@
-import React, { Component } from "react";
+import React, { Component, PropTypes } from "react";
 import { registerComponent } from "/imports/plugins/core/layout/lib/components";
 import { CardGroup, SettingsCard, TextField, Button, Select } from "/imports/plugins/core/ui/client/components";
 
 class mediaCloudSettings extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      settings: props.settings || {},
+      isSaving: false
+    };
+    this.handleStateChange = this.handleStateChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleSelect = this.handleSelect.bind(this);
+  }
+
+  handleStateChange(e) {
+    const { settings } = this.state;
+    settings[e.target.name] = e.target.value;
+    this.setState({ settings });
+  }
+
+  handleSubmit(e) {
+    e.preventDefault();
+    const { saveSettings } = this.props;
+    const { settings } = this.state;
+    this.setState({ isSaving: true });
+    saveSettings(settings, () => this.setState({ isSaving: false }));
+  }
 
   handleSelect(e) {
     const { settings } = this.state;
@@ -10,7 +35,19 @@ class mediaCloudSettings extends Component {
     this.setState({ settings });
   }
 
+  handleProductFieldSave = (productId, fieldName, value) => {
+    let updateValue = value;
+    // special case, slugify handles.
+    if (fieldName === "handle") {
+      updateValue = Reaction.getSlug(value);
+    }
+    Meteor.call("products/updateProductField", productId, fieldName, updateValue);
+  }
+
   render() {
+    const settings = this.state.settings;
+    const isSaving = this.state.isSaving;
+
     const regions = [{
       label: "US East (N.Virginia)", value: "us-east-1"
     }, {
@@ -49,7 +86,7 @@ class mediaCloudSettings extends Component {
           showSwitch={false}
           title="S3 Media Storage"
         >
-          <form>
+          <form onSubmit={this.handleSubmit}>
             <Select
               clearable={false}
               label="Region"
@@ -57,6 +94,7 @@ class mediaCloudSettings extends Component {
               name="region"
               onChange={this.handleSelect}
               options={regions}
+              value={settings.region || ""}
             />
             <hr/>
             <TextField
@@ -73,6 +111,8 @@ class mediaCloudSettings extends Component {
               label="Bucket Name"
               type="text"
               name="bucket"
+              value={settings.bucket || ""}
+              onChange={this.handleStateChange}
             />
             <Button
               bezelStyle="solid"
@@ -80,7 +120,9 @@ class mediaCloudSettings extends Component {
               className="pull-right"
               type="submit"
             >
-              <span>Save</span>
+              {isSaving ?
+                <i className="fa fa-refresh fa-spin" />
+              : <span>Save</span>}
             </Button>
           </form>
         </SettingsCard>
@@ -88,6 +130,16 @@ class mediaCloudSettings extends Component {
     );
   }
 }
+
+mediaCloudSettings.propTypes = {
+  saveSettings: PropTypes.func.isRequired,
+  settings: PropTypes.shape({
+    region: PropTypes.string,
+    accessKeyID: PropTypes.string,
+    secretAccessKey: PropTypes.string,
+    bucket: PropTypes.string
+  })
+};
 
 // Register react component.
 registerComponent({
