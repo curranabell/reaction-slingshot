@@ -12,7 +12,7 @@ Reaction.registerPackage({
     provides: "dashboard",
     label: "Media Cloud",
     description: "Upload Media To Cloud Storage",
-    route: '/dashboard/media-cloud',
+    route: "/dashboard/media-cloud",
     icon: "fa fa-cloud-upload",
     priority: 1,
     container: "core"
@@ -21,6 +21,6 @@ Reaction.registerPackage({
     template: "mediaCloudSettings",
     label: "Media Cloud",
     icon: "fa fa-cloud-upload",
-    container: "core"
+    container: "dashboard"
   }]
 });
