@@ -2,10 +2,10 @@ import { Slingshot } from "meteor/edgee:slingshot";
 
 Slingshot.fileRestrictions("uploadToAmazonS3", {
   allowedFileTypes: ["image/png", "image/jpeg", "image/gif", "video/*", "video/mp4", "video/avi"],
-  maxSize: 10000 * 1024 * 1024
+  maxSize: 16 * 1024 * 1024
 });
 
-Slingshot.createDirective("uploadToAmazonS3", Slingshot.S3Storage, {
+Slingshot.createDirective("productImageUploader", Slingshot.S3Storage, {
   bucket: "nmp-media",
   acl: "public-read",
   region: "west-1",
@@ -14,6 +14,6 @@ Slingshot.createDirective("uploadToAmazonS3", Slingshot.S3Storage, {
   },
   key: function (file, metaContext) {
     // metaContext is used here to dinamically construct the file path
-    return metaContext.prePath + file.name;
+    return metaContext.productId + file.name;
   }
 });
