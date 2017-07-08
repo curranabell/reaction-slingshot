@@ -33,18 +33,17 @@ function uploadHandler(files) {
   const toGrid = variant.ancestors.length === 1;
 
   for (const file of files) {
-    const fileObj = new FS.File(file);
+    const file = new FS.File(file);
 
-    fileObj.metadata = {
+    file.metadata = {
       ownerId: userId,
       productId: productId,
       variantId: variantId,
       shopId: shopId,
       priority: count,
-      toGrid: +toGrid // we need number
     };
 
-    Media.insert(fileObj);
+    Media.insert(file);
     count++;
   }
 
